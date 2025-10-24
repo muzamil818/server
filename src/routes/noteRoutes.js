@@ -1,0 +1,67 @@
+const express = require("express");
+const router = express.Router();
+const Note = require("../models/Notes");
+const auth = require("./authRoutes");
+
+router.get("/", auth, async (req, res) => {
+  try {
+    const note = await Note.find({ user: req.user });
+    res.json(note);
+  } catch (err) {
+    console.error(err);
+  }
+});
+// create note
+router.get("/", auth, async (req, res) => {
+  try {
+    const { title, contant, pinned } = req.body;
+    if (!title) return res.status(400).json({ message: "Title is required" });
+
+    const note = new Note({
+      user: req.user,
+      title,
+      contant,
+      pinned: !!pinned,
+    });
+
+    await note.save();
+
+    res.status(201).json(note);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+// updating the note
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+
+    if (!note) return res.status(404).json({ message: "Note not found" });
+    if (note.user.toString() !== req.user)
+      return res.status(403).json({ messsage: "No Authorization" });
+
+    const { title, contant, pinned } = req.body;
+    if (title !== undefined) note.title = title;
+    if (contant !== undefined) note.content = contant;
+    if (note.pinned !== undefined) note.pinned = pinned;
+
+    await note.save();
+  } catch (err) {
+    res.status(400).json({ Error: err });
+  }
+});
+//deleting the created note
+router.get("/:id", auth, async (req, res) => {
+    try{
+  const note = await Note.findById(req.params.id);
+
+  if (note.user.toString() !== req.user)
+    return res.status(403).json({ messsage: "No Authorization" });
+
+ await note.deleteOne()
+ res.send("note deleted")
+}catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+module.exports = router

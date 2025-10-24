@@ -21,8 +21,8 @@ app.get("/", (req, res)=>{
 })
 
 
-// app.use('/api/auth', authRoutes)
-// app.use('/api/note', noteRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/note', noteRoutes)
 
 app.use((err, req, res, next)=>{
     console.error(err.stack)
