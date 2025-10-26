@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
 
     const user = await User.create({ email, name, password: hashed });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -66,4 +66,13 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.delete('/delete', async (req, res)=>{
+  try{
+  const user = await User.deleteOne(user._id)
+  console.log(`user is deleted: ${user}`);
+  }catch(err){
+    console.error(`delete api/delete : ${err}` );
+    res.status(500).json({message: "server Error"})
+  }
+})
 module.exports = router;
