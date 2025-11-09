@@ -44,9 +44,10 @@ router.put("/:id", auth, async (req, res) => {
     const { title, content, pinned } = req.body;
     if (title !== undefined) note.title = title;
     if (content !== undefined) note.content = content;
-    if (note.pinned !== undefined) note.pinned = pinned;
+    if (pinned !== undefined) note.pinned = pinned;
 
     await note.save();
+    res.status(200).json({message:"note saved ", note})
   } catch (err) {
     res.status(400).json({ Error: err });
   }
